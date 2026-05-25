@@ -1,7 +1,11 @@
 #include <iostream>
-#include <string>
+
 #include <dirent.h>  // Librería para leer directorios
 #include "tinyxml2.h"
+
+
+#include <string>
+#include <vector>
 
 using namespace tinyxml2;
 
