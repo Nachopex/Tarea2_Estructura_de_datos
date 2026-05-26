@@ -4,11 +4,11 @@
 #include <string>
 
 // Node
-Tree::Node::Node(int id,std::string titulo, std::string ISBN, int año_publicacion, std::string idioma, std::string descripcion, double rating_promedio, int num_paginas, Node* p) {
+Tree::Node::Node(std::string titulo, std::string ISBN, int year_publicacion, int id, std::string idioma, std::string descripcion, double rating_promedio, int num_paginas, Node* p) {
     this->id = id;
     this->titulo = titulo;
     this->ISBN = ISBN;
-    this->año_publicacion = año_publicacion;
+    this->year_publicacion = year_publicacion;
     this->idioma = idioma;
     this->descripcion = descripcion;
     this->rating_promedio = rating_promedio;
@@ -46,9 +46,9 @@ Tree::Node* Tree::search(Node* node, int id) {
     return nullptr;
 }
 
-bool Tree::insert(int parentValue, int id,std::string titulo, std::string ISBN, int año_publicacion, std::string idioma, std::string descripcion, double rating_promedio, int num_paginas) {
+bool Tree::insert(int parentValue, std::string titulo, std::string ISBN, int year_publicacion, int id, std::string idioma, std::string descripcion, double rating_promedio, int num_paginas) {
     if (!rootNode) {
-        rootNode = new Node(id, titulo, ISBN, año_publicacion, idioma, descripcion, rating_promedio, num_paginas);
+        rootNode = new Node(titulo, ISBN, year_publicacion);
         treeSize++;
         return true;
     }
@@ -56,7 +56,7 @@ bool Tree::insert(int parentValue, int id,std::string titulo, std::string ISBN, 
     Node* parentNode = search(rootNode, parentValue);
     if (!parentNode) return false;
 
-    Node* newNode = new Node(id, titulo, ISBN, año_publicacion, idioma, descripcion, rating_promedio, num_paginas, parentNode);
+    Node* newNode = new Node(titulo, ISBN, year_publicacion, id, idioma, descripcion, rating_promedio, num_paginas, parentNode);
     parentNode->children.push_back(newNode);
     treeSize++;
     return true;
