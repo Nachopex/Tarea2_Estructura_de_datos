@@ -42,4 +42,6 @@ public:
     Node* search(Node* node, int value);
 
     std::vector<int> preOrder();
+
+    ~Tree();
 };

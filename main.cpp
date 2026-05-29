@@ -12,7 +12,7 @@ using namespace tinyxml2;
 Tree* crear_arbol_XML(){
     Tree* tree = new Tree();
     // Crear un nodo raiz
-    tree->insert(0, "nodo_raiz", "0", 0, -1, "", "", 0.0, 0);
+    tree->insert(0, "nodo_raiz", "0", 0, 0, "", "", 0.0, 0);
 
     
     //Datos a utilizar de los XML
@@ -50,7 +50,12 @@ Tree* crear_arbol_XML(){
                 if (error == XML_SUCCESS) {
                     std::cout << "Exito al cargar " << ruta_completa << "\n";
                     //Tomamos todos los datos del libro
-                    XMLElement* book = doc.FirstChildElement("book");
+
+                    XMLElement* GoodreadsResponse = doc.FirstChildElement("GoodreadsResponse");
+                    if(GoodreadsResponse == nullptr){
+                        continue;
+                    }
+                    XMLElement* book = GoodreadsResponse->FirstChildElement("book");
                     if(book == nullptr){
                         continue;
                     }
@@ -112,7 +117,7 @@ Tree* crear_arbol_XML(){
                         num_paginas = 0;
                     }
                     
-                    tree->insert(-1,titulo, ISBN, year_publicacion, id_padre, idioma, descripcion, rating_promedio, num_paginas);
+                    tree->insert(0,titulo, ISBN, year_publicacion, id_padre, idioma, descripcion, rating_promedio, num_paginas);
 
                     XMLElement* verificacion_similar_book = book->FirstChildElement("similar_books");
 
@@ -169,9 +174,24 @@ Tree* crear_arbol_XML(){
     return tree;
 }
 
+void listar(Tree* tree, int id, int* contador){
+
+    if (id != 0) {
+        std::cout << "ID Libro: " << id << "\n";
+        *contador = *contador+1;
+    }
+    if (id == 0){
+        for(int id_hijo : tree->children(id)){
+            listar(tree, id_hijo, contador);
+        }
+    }
+}
+
 
 int main() {
     Tree* tree = crear_arbol_XML();
-
+    int contador = 0;
+    listar(tree, tree->root(), &contador);
+    std::cout << "libros totales contados en listar =  " << contador << "\n";
     return 0;
 }

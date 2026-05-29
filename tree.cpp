@@ -48,7 +48,7 @@ Tree::Node* Tree::search(Node* node, int id) {
 
 bool Tree::insert(int parentValue, std::string titulo, std::string ISBN, int year_publicacion, int id, std::string idioma, std::string descripcion, double rating_promedio, int num_paginas) {
     if (!rootNode) {
-        rootNode = new Node(titulo, ISBN, year_publicacion);
+        rootNode = new Node(titulo, ISBN, year_publicacion, id, idioma, descripcion, rating_promedio, num_paginas);
         treeSize++;
         return true;
     }
@@ -125,4 +125,8 @@ std::vector<int> Tree::preOrder() {
     std::vector<int> result;
     preOrder(rootNode, result);
     return result;
+}
+
+Tree::~Tree() {
+    deleteSubtree(rootNode);
 }
