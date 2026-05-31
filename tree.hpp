@@ -43,5 +43,9 @@ public:
 
     std::vector<int> preOrder();
 
+    double obtenerRating(int id);
+
+    int obtenerAnoPublicacion(int id);
+
     ~Tree();
 };
