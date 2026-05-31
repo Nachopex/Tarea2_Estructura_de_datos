@@ -127,6 +127,18 @@ std::vector<int> Tree::preOrder() {
     return result;
 }
 
+double Tree::obtenerRating(int id){
+    Node* nodo=search(rootNode,id);
+    if(!nodo) return -1; 
+    return nodo->rating_promedio;
+}
+
+int Tree::obtenerAnoPublicacion(int id){
+    Node* nodo =search(rootNode,id);
+    if(!nodo) return -1;
+    return nodo->year_publicacion;
+}
+
 Tree::~Tree() {
     deleteSubtree(rootNode);
 }
