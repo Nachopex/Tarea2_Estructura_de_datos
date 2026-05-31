@@ -1,0 +1,12 @@
+tarea:
+crear funciones de 1. borrar_ratings() y 2. precursores()
+
+1. la idea es tener la funcion principal que borra los libros y
+una función a parte que busca los libros y los identifica para poder
+ser borrados. 
+el tema es que, es mejor hacer ese recorrido para buscar en post-order
+Entonces empezar mejor por los hijos en vez de la raiz
+
+Viendo los valores de rating pobré con 3.0, 3.5 y no me arroja los prints
+
+2. Tengo que probarla quizas no está bien implementado
