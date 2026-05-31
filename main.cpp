@@ -57,7 +57,7 @@ Tree* crear_arbol_XML(){
 
                 // Si se carga con éxito, procedemos a extraer datos
                 if (error == XML_SUCCESS) {
-                    std::cout << "Exito al cargar " << ruta_completa << "\n";
+                    //std::cout << "Exito al cargar " << ruta_completa << "\n";
                     
                     // Tomamos todos los datos del libro
 
@@ -222,11 +222,94 @@ void listar(Tree* tree, int id, int* contador){
     }
 }
 
+void precursores(Tree* tree) {
+    if(tree->isEmpty()) {
+        std::cout << "El árbol está vacío. \n";
+        return;
+    }
+    // con este vector guardo los id de los procursores
+    std::vector<int> ids_precursores;
+
+    // Vemos si por cada hijo de la raiz, hay precursores
+    for(int id_hijo : tree->children(0)){
+        if(es_precursor(tree,id_hijo)){
+            ids_precursores.push_back(id_hijo);
+        }
+    }
+
+    if(ids_precursores.empty()){
+        std::cout << "No se encontraron precursores. \n";
+    }else{
+        std::cout << "IDs de precursores encontrados: \n";
+        for(int id : ids_precursores){
+            std::cout << id << "\n";
+        } 
+        std::cout << "Precursores encontrados en total: " << ids_precursores.size() << std::endl;
+    }    
+}
+bool es_precursor(Tree* tree, int id){
+    // primero obtenemos los libros similares (hijos)
+    std::vector<int> hijos=tree->children(id);
+    if(hijos.empty()){
+        return false;
+    }
+    // si no tiene hijos, no es precursor
+
+    int año_libro=tree->obtenerAnoPublicacion(id);
+    if(año_libro <=0) return false; // verifircamos que sea válido
+    // por cada libro similar verificamos que el año de publicación sea <= al libro original
+    for(int id_hijo : hijos){
+        int año_similar=tree->obtenerAnoPublicacion(id_hijo);
+        // verificamos que sea válido
+        if(año_similar <=0) return false; 
+        if(año_similar <= año_libro){
+            return false;
+        }
+    }
+    return true;
+}
+// esta función se usa de manera auxiliar para buscar los libros con taring <= a r 
+void buscar_ratings(Tree* tree, int id,double r, std::vector<int>& ids_a_borrar){
+    
+    double rating=tree->obtenerRating(id);
+    if(rating <=r && rating >= 0){
+        ids_a_borrar.push_back(id);
+        return;
+    }
+
+    for(int id_hijo : tree->children(id)){
+        buscar_ratings(tree,id_hijo,r,ids_a_borrar);
+    }
+}
+// Función que elimina del árbol todos los libros con rating promedio menor o igual a r.
+void borrar_ratings(Tree* tree, double r){
+    if(tree->isEmpty()) {
+        std::cout << "El árbol está vacío. \n";
+        return;
+    }
+    
+    std::vector<int> ids_a_borrar;
+
+    for(int id_hijo : tree->children(0)){
+        buscar_ratings(tree,id_hijo,r,ids_a_borrar);
+    }
+
+    for(int id : ids_a_borrar){
+        if(tree->remove(id)){
+            std::cout << "Se borró libro con ID: " << id << std::endl;
+        }
+    }
+    std::cout << "Libros eliminados en total: " << ids_a_borrar.size() << std::endl;
+
+}
+
 // Función principal. Inicia el proceso, lista y muestra el conteo total.
 int main() {
     Tree* tree = crear_arbol_XML();
     int contador = 0;
     listar(tree, tree->root(), &contador);
     std::cout << "libros totales contados en listar =  " << contador << "\n";
+    borrar_ratings(tree, 4.0); // probar
+
     return 0;
 }
