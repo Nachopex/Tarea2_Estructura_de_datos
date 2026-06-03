@@ -222,14 +222,36 @@ void listar(Tree* tree, int id, int* contador){
     }
 }
 
+// Esta función verifica si un libro es precursor de sus libros similares
+bool es_precursor(Tree* tree, int id){
+    // primero obtenemos los libros similares (hijos)
+    std::vector<int> hijos=tree->children(id);
+    if(hijos.empty()){
+        return false;
+    }
+    // si no tiene hijos, no es precursor
+
+    int año_libro=tree->obtenerAnoPublicacion(id);
+    // por cada libro similar verificamos que el año de publicación sea <= al libro original
+    for(int id_hijo : hijos){
+        int año_similar=tree->obtenerAnoPublicacion(id_hijo);
+        // verificamos que sea válido
+        if(año_similar <=0) return false; 
+        if(año_similar <= año_libro){
+            return false;
+        }
+    }
+    return true;
+}
+
 void precursores(Tree* tree) {
     if(tree->isEmpty()) {
         std::cout << "El árbol está vacío. \n";
         return;
     }
-    // con este vector guardo los id de los procursores
+    // con este vector guardo los id de los precursores
     std::vector<int> ids_precursores;
-
+    
     // Vemos si por cada hijo de la raiz, hay precursores
     for(int id_hijo : tree->children(0)){
         if(es_precursor(tree,id_hijo)){
@@ -247,38 +269,13 @@ void precursores(Tree* tree) {
         std::cout << "Precursores encontrados en total: " << ids_precursores.size() << std::endl;
     }    
 }
-bool es_precursor(Tree* tree, int id){
-    // primero obtenemos los libros similares (hijos)
-    std::vector<int> hijos=tree->children(id);
-    if(hijos.empty()){
-        return false;
-    }
-    // si no tiene hijos, no es precursor
 
-    int año_libro=tree->obtenerAnoPublicacion(id);
-    if(año_libro <=0) return false; // verifircamos que sea válido
-    // por cada libro similar verificamos que el año de publicación sea <= al libro original
-    for(int id_hijo : hijos){
-        int año_similar=tree->obtenerAnoPublicacion(id_hijo);
-        // verificamos que sea válido
-        if(año_similar <=0) return false; 
-        if(año_similar <= año_libro){
-            return false;
-        }
-    }
-    return true;
-}
-// esta función se usa de manera auxiliar para buscar los libros con taring <= a r 
-void buscar_ratings(Tree* tree, int id,double r, std::vector<int>& ids_a_borrar){
-    
+// esta función se usa de manera auxiliar para buscar los libros con rating <= a r 
+void buscar_ratings(Tree* tree, int id,double r, std::vector<int>& ids_a_borrar){  
     double rating=tree->obtenerRating(id);
-    if(rating <=r && rating >= 0){
+    if(rating <=r && rating >= 0.0 ){
         ids_a_borrar.push_back(id);
         return;
-    }
-
-    for(int id_hijo : tree->children(id)){
-        buscar_ratings(tree,id_hijo,r,ids_a_borrar);
     }
 }
 // Función que elimina del árbol todos los libros con rating promedio menor o igual a r.
@@ -299,17 +296,56 @@ void borrar_ratings(Tree* tree, double r){
             std::cout << "Se borró libro con ID: " << id << std::endl;
         }
     }
-    std::cout << "Libros eliminados en total: " << ids_a_borrar.size() << std::endl;
-
+    std::cout << "Libros ha eliminar en total: " << ids_a_borrar.size() << std::endl;
 }
 
 // Función principal. Inicia el proceso, lista y muestra el conteo total.
 int main() {
     Tree* tree = crear_arbol_XML();
-    int contador = 0;
-    listar(tree, tree->root(), &contador);
-    std::cout << "libros totales contados en listar =  " << contador << "\n";
-    borrar_ratings(tree, 4.0); // probar
-
+    if(tree->isEmpty()) {
+        std::cout << "No se pudieron cargar los libros\n";
+        return 1;
+    }
+    
+    int opcion;
+    double rating;
+    
+    do {
+        std::cout << "\n=== Opciones ===\n";
+        std::cout << "1. Listar libros (preorder)\n";
+        std::cout << "2. Borrar libros con rating <= r\n";
+        std::cout << "3. Mostrar libros precursores\n";
+        std::cout << "4. Salir\n";
+        std::cout << "Opción: ";
+        std::cin >> opcion;
+        
+        switch(opcion) {
+            case 1: {
+                int contador = 0;
+                listar(tree, tree->root(), &contador);
+                std::cout << "Total de libros listados: " << contador << "\n";
+                break;
+            }
+            case 2:
+                std::cout << "Ingrese rating límite (r): ";
+                std::cin >> rating;
+                if(rating < 0.0 || rating > 5.0){
+                    std::cout << "Rating inválido. Debe estar entre 0.0 y 5.0\n";
+                    break;
+                }
+                borrar_ratings(tree, rating);
+                break;
+            case 3:
+                precursores(tree);
+                break;
+            case 4:
+                std::cout << "Saliendo...\n";
+                break;
+            default:
+                std::cout << "\nOpción inválida\n";
+        }
+    } while(opcion != 4);
+    
+    delete tree;
     return 0;
 }
