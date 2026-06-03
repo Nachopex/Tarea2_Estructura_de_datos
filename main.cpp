@@ -57,7 +57,7 @@ Tree* crear_arbol_XML(){
 
                 // Si se carga con éxito, procedemos a extraer datos
                 if (error == XML_SUCCESS) {
-                    //std::cout << "Exito al cargar " << ruta_completa << "\n";
+                    std::cout << "Exito al cargar " << ruta_completa << "\n";
                     
                     // Tomamos todos los datos del libro
 
@@ -222,7 +222,9 @@ void listar(Tree* tree, int id, int* contador){
     }
 }
 
-// Esta función verifica si un libro es precursor de sus libros similares
+// Función auxiliar que verifica si un libro es "precursor". 
+// Un libro es precursor si todos sus libros similares tienen un año de publicación estrictamente mayor al suyo.
+// Retorna true si cumple la condición, false en caso contrario o si los datos son inválidos.
 bool es_precursor(Tree* tree, int id){
     // primero obtenemos los libros similares (hijos)
     std::vector<int> hijos=tree->children(id);
@@ -231,19 +233,21 @@ bool es_precursor(Tree* tree, int id){
     }
     // si no tiene hijos, no es precursor
 
-    int año_libro=tree->obtenerAnoPublicacion(id);
+    int year_libro=tree->obtenerAnoPublicacion(id);
     // por cada libro similar verificamos que el año de publicación sea <= al libro original
     for(int id_hijo : hijos){
-        int año_similar=tree->obtenerAnoPublicacion(id_hijo);
+        int year_similar=tree->obtenerAnoPublicacion(id_hijo);
         // verificamos que sea válido
-        if(año_similar <=0) return false; 
-        if(año_similar <= año_libro){
+        if(year_similar <=0) return false; 
+        if(year_similar <= year_libro){
             return false;
         }
     }
     return true;
 }
 
+// Busca y lista por consola los IDs de todos los libros principales que son precursores.
+// Itera sobre los hijos directos de la raíz y muestra el total de precursores encontrados al final.
 void precursores(Tree* tree) {
     if(tree->isEmpty()) {
         std::cout << "El árbol está vacío. \n";
@@ -270,7 +274,8 @@ void precursores(Tree* tree) {
     }    
 }
 
-// esta función se usa de manera auxiliar para buscar los libros con rating <= a r 
+// Función auxiliar que evalúa si el rating de un libro específico es menor o igual a 'r' y mayor o igual a 0.0. 
+// Si cumple la condición, agrega su ID al vector referenciado para ser borrado posteriormente.
 void buscar_ratings(Tree* tree, int id,double r, std::vector<int>& ids_a_borrar){  
     double rating=tree->obtenerRating(id);
     if(rating <=r && rating >= 0.0 ){
@@ -278,7 +283,9 @@ void buscar_ratings(Tree* tree, int id,double r, std::vector<int>& ids_a_borrar)
         return;
     }
 }
-// Función que elimina del árbol todos los libros con rating promedio menor o igual a r.
+
+// Elimina del árbol todos los libros principales cuyo rating promedio sea menor o igual al valor 'r'.
+// Recopila los IDs primero para no alterar el árbol mientras se itera, y luego procede a eliminarlos.
 void borrar_ratings(Tree* tree, double r){
     if(tree->isEmpty()) {
         std::cout << "El árbol está vacío. \n";
@@ -299,7 +306,8 @@ void borrar_ratings(Tree* tree, double r){
     std::cout << "Libros ha eliminar en total: " << ids_a_borrar.size() << std::endl;
 }
 
-// Función principal. Inicia el proceso, lista y muestra el conteo total.
+// Función principal del programa. Construye el árbol cargando los datos de los archivos XML 
+// e inicia un menú interactivo en consola para ejecutar las distintas operaciones solicitadas.
 int main() {
     Tree* tree = crear_arbol_XML();
     if(tree->isEmpty()) {
@@ -316,7 +324,7 @@ int main() {
         std::cout << "2. Borrar libros con rating <= r\n";
         std::cout << "3. Mostrar libros precursores\n";
         std::cout << "4. Salir\n";
-        std::cout << "Opción: ";
+        std::cout << "Opcion: ";
         std::cin >> opcion;
         
         switch(opcion) {
@@ -327,10 +335,10 @@ int main() {
                 break;
             }
             case 2:
-                std::cout << "Ingrese rating límite (r): ";
+                std::cout << "Ingrese rating limite (r): ";
                 std::cin >> rating;
                 if(rating < 0.0 || rating > 5.0){
-                    std::cout << "Rating inválido. Debe estar entre 0.0 y 5.0\n";
+                    std::cout << "Rating invalido. Debe estar entre 0.0 y 5.0\n";
                     break;
                 }
                 borrar_ratings(tree, rating);
@@ -342,7 +350,7 @@ int main() {
                 std::cout << "Saliendo...\n";
                 break;
             default:
-                std::cout << "\nOpción inválida\n";
+                std::cout << "\nOpcion invalida\n";
         }
     } while(opcion != 4);
     
